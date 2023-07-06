@@ -1,41 +1,45 @@
-const fs = require('fs');
+import fs from 'fs/promises';
 
 class ProductManager {
   constructor(path) {
-    this.path = "/products.JSON";
+    this.path = './products.json';
   }
 
-  readProductsFile() {
+  async readProductsFile() {
     try {
-      const data = fs.readFileSync(this.path, 'utf8');
+      const data = await fs.readFile(this.path, 'utf8');
       return JSON.parse(data);
     } catch (error) {
       return [];
     }
   }
 
-  writeProductsFile(products) {
-    const data = JSON.stringify(products, null, 2);
-    fs.writeFileSync(this.path, data);
+  async writeProductsFile(products) {
+    try {
+      const data = JSON.stringify(products, null, 2);
+      await fs.writeFile(this.path, data);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  addProduct(productData) {
-    const products = this.readProductsFile();
+  async addProduct(productData) {
+    const products = await this.readProductsFile();
 
     const id = products.length > 0 ? products[products.length - 1].id + 1 : 1;
     const product = { id, ...productData };
 
     products.push(product);
 
-    this.writeProductsFile(products);
+    await this.writeProductsFile(products);
   }
 
-  getProducts() {
-    return this.readProductsFile();
+  async getProducts() {
+    return await this.readProductsFile();
   }
 
-  getProductById(id) {
-    const products = this.readProductsFile();
+  async getProductById(id) {
+    const products = await this.readProductsFile();
 
     const product = products.find(product => product.id === id);
 
@@ -46,8 +50,8 @@ class ProductManager {
     return product;
   }
 
-  updateProduct(id, updatedFields) {
-    const products = this.readProductsFile();
+  async updateProduct(id, updatedFields) {
+    const products = await this.readProductsFile();
 
     const productIndex = products.findIndex(product => product.id === id);
 
@@ -58,11 +62,11 @@ class ProductManager {
     const updatedProduct = { ...products[productIndex], ...updatedFields };
     products[productIndex] = updatedProduct;
 
-    this.writeProductsFile(products);
+    await this.writeProductsFile(products);
   }
 
-  deleteProduct(id) {
-    const products = this.readProductsFile();
+  async deleteProduct(id) {
+    const products = await this.readProductsFile();
 
     const updatedProducts = products.filter(product => product.id !== id);
 
@@ -70,7 +74,7 @@ class ProductManager {
       throw new Error('Producto no encontrado.');
     }
 
-    this.writeProductsFile(updatedProducts);
+    await this.writeProductsFile(updatedProducts);
   }
 }
 
