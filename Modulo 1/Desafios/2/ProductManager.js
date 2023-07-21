@@ -26,6 +26,14 @@ class ProductManager {
   async addProduct(productData) {
     const products = await this.readProductsFile();
 
+  const validation = products.some(
+    (productfind) => productfind.code === code
+  );
+  if(validation){
+    console.log("Producto con codigo ya existente");
+    return;
+  }
+
     const id = products.length > 0 ? products[products.length - 1].id + 1 : 1;
     const product = { id, ...productData };
 
